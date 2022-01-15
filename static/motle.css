@@ -1,0 +1,337 @@
+@media (prefers-color-scheme: dark) {
+    :root {
+        --main-background-color: #000000;
+        --cell-background-color: #111111;
+        --cell-active-background-color: #333333;
+        --cell-correct-background-color: #a6bf4b;
+        --cell-close-background-color: #f2c53d;
+        --main-color: #ffffff;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    :root {
+        --main-background-color: #ffffff;
+        --cell-background-color: #eeeeee;
+        --cell-active-background-color: #cccccc;
+        --cell-correct-background-color: #a6bf4b;
+        --cell-close-background-color: #f2c53d;
+        --main-color: #000000;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    :root {
+        --nav-width: 100%;
+        --nav-h1-padding: 0.5rem;
+        --nav-last-child-padding: 0.5rem;
+        --cell-padding: 1rem;
+        --cell-margin: 0.25rem;
+        --keyboard-margin: 0;
+        --keyboard-width: auto;
+        --keyboard-width-wide: auto;
+    }
+}
+
+@media only screen and (min-width: 601px) {
+    :root {
+        --nav-width: 29rem;
+        --nav-h1-padding: 0.5rem 0;
+        --nav-last-child-padding: 0;
+        --cell-padding: 1.5rem;
+        --cell-margin: 0.5rem;
+        --keyboard-margin: 0.25rem;
+        --keyboard-width: 1rem;
+        --keyboard-width-wide: 3rem;
+    }
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    font-size: 1rem;
+}
+
+html {
+    font-family: sans-serif;
+    height: 100%;
+    color: var(--main-color);
+}
+
+body {
+    display: flex;
+    flex-flow: column nowrap;
+    min-height: 100%;
+    background-color: var(--main-background-color);
+}
+
+nav {
+    display: flex;
+    width: var(--nav-width);
+    margin: 0 auto;
+    padding: 0.5rem 0;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+}
+
+nav.blurred {
+    filter: blur(5px);
+}
+
+nav h1 {
+    padding: var(--nav-h1-padding);
+    font-size: 1rem;
+    font-weight: normal;
+}
+
+nav h1 a {
+    color: var(--main-color);
+}
+
+nav ul {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    list-style-type: none;
+}
+
+nav ul li {
+    padding: 0.5rem 0.25rem;
+    font-size: 1rem;
+}
+
+nav ul li:first-child {
+    padding-left: 0rem;
+}
+
+nav ul li:last-child {
+    padding-right: var(--nav-last-child-padding);
+}
+
+nav ul li a {
+    color: var(--main-color);
+}
+
+footer {
+    padding: 0.5rem;
+}
+
+footer.blurred {
+    filter: blur(5px);
+}
+
+footer ul {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    list-style-type: none;
+}
+
+footer ul li {
+    padding: 0.5rem 0;
+    font-size: 1rem;
+}
+
+footer ul li:first-child {
+    padding-left: 0.5rem;
+}
+
+footer ul li:last-child {
+    padding-right: 0.5rem;
+}
+
+footer ul li a {
+    color: var(--main-color);
+}
+
+footer ul li::after {
+    margin: 0 0.5rem;
+    content: "|";
+}
+
+footer ul li:last-child::after {
+    margin: 0;
+    content: none;
+}
+
+main {
+    display: flex;
+    flex: 1;
+    flex-flow: column nowrap;
+    align-items: center;
+}
+
+main.blurred {
+    filter: blur(5px);
+}
+
+#grid-wrapper {
+    flex: 1;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+}
+
+#grid {
+    display: grid;
+    grid-template-areas:
+        "div div div div div"
+        "div div div div div"
+        "div div div div div"
+        "div div div div div"
+        "div div div div div"
+        "div div div div div";
+}
+
+#grid div {
+    padding: var(--cell-padding);
+    margin: var(--cell-margin);
+    width: 2rem;
+    height: 2rem;
+    font-size: 2rem;
+    line-height: 1;
+    text-align: center;
+    background-color: var(--cell-background-color);
+}
+
+#grid div.shake {
+    animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+  
+@keyframes shake {
+    10%, 90% {
+        transform: translate3d(-1px, 0, 0);
+    }
+    
+    20%, 80% {
+        transform: translate3d(2px, 0, 0);
+    }
+  
+    30%, 50%, 70% {
+        transform: translate3d(-4px, 0, 0);
+    }
+  
+    40%, 60% {
+        transform: translate3d(4px, 0, 0);
+    }
+}
+
+#grid .active {
+    background-color: var(--cell-active-background-color);
+}
+
+#grid .active.correct {
+    background-color: var(--cell-correct-background-color);
+}
+
+#grid .active.close {
+    background-color: var(--cell-close-background-color);
+}
+
+#keyboard .row {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+}
+
+#keyboard .row .key {
+    padding: 1rem;
+    margin: var(--keyboard-margin);
+    height: 1rem;
+    width: var(--keyboard-width);
+    font-size: 1rem;
+    line-height: 1;
+    text-align: center;
+    background-color: var(--cell-active-background-color);
+    color: var(--main-color);
+}
+#keyboard .row .key.wide {
+    width: var(--keyboard-width-wide);
+}
+
+#keyboard .row .inactive {
+    background-color: var(--cell-background-color);
+}
+
+#keyboard .row .correct {
+    background-color: var(--cell-correct-background-color);
+}
+
+#keyboard .row .close {
+    background-color: var(--cell-close-background-color);
+}
+
+#help {
+    display: none;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+}
+
+#help.visible {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+}
+
+#help-modal {
+    margin: 0 auto;
+    width: var(--nav-width);
+    background-color: var(--main-background-color);
+}
+
+#help-modal header {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    padding: 1rem;
+}
+
+#help-modal header h2 {
+    font-size: 2rem;
+}
+
+#help-modal header a {
+    display: block;
+}
+
+#help-modal a {
+    color: var(--main-color);
+}
+
+#help-modal p {
+    padding: 1rem;
+}
+
+#unknown-word {
+    display: none;
+    position: absolute;
+    width: 100%;
+    top: 25%;
+    opacity: 0;
+}
+
+#unknown-word.visible {
+    display: block;
+    animation: fade 3s linear;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+#unknown-word p {
+    padding: 1rem;
+    font-size: 2rem;
+    text-align: center;
+    background-color: var(--main-background-color);
+}
+  
+@keyframes fade {
+    0%,100% { opacity: 0 }
+    50% { opacity: 1 }
+}

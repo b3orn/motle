@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>motle</title>
+        <link rel="stylesheet" href="/motle.css">
+        <link rel="icon" href="/favicon.ico">
+        <script type="text/javascript" src="/motle.js"></script>
+        <script type="text/javascript">
+            window.onload = function() {
+                motle.init("{{ word_of_the_day }}");
+            };
+        </script>
+    </head>
+    <body>
+        <nav>
+            <h1><a href="/">motle</a></h1>
+            <ul>
+                <li><a id="word-of-the-day" href="#">mot du jour</a></li>
+                <li><a id="random" href="#">au hazard</a></li>
+                <li><a id="show-help" href="#">aide</a></li>
+            </ul>
+        </nav>
+        <main>
+            <div id="grid-wrapper">
+                <div id="grid">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+            </div>
+            <div id="keyboard">
+                <div class="row">
+                    <div data-key="a" class="key">a</div>
+                    <div data-key="z" class="key">z</div>
+                    <div data-key="e" class="key">e</div>
+                    <div data-key="r" class="key">r</div>
+                    <div data-key="t" class="key">t</div>
+                    <div data-key="y" class="key">y</div>
+                    <div data-key="u" class="key">u</div>
+                    <div data-key="i" class="key">i</div>
+                    <div data-key="o" class="key">o</div>
+                    <div data-key="p" class="key">p</div>
+                </div>
+                <div class="row">
+                    <div data-key="q" class="key">q</div>
+                    <div data-key="s" class="key">s</div>
+                    <div data-key="d" class="key">d</div>
+                    <div data-key="f" class="key">f</div>
+                    <div data-key="g" class="key">g</div>
+                    <div data-key="h" class="key">h</div>
+                    <div data-key="j" class="key">j</div>
+                    <div data-key="k" class="key">k</div>
+                    <div data-key="l" class="key">l</div>
+                    <div data-key="m" class="key">m</div>
+                </div>
+                <div class="row">
+                    <div data-key="enter" class="key wide">entrée</div>
+                    <div data-key="w" class="key">w</div>
+                    <div data-key="x" class="key">x</div>
+                    <div data-key="c" class="key">c</div>
+                    <div data-key="v" class="key">v</div>
+                    <div data-key="b" class="key">b</div>
+                    <div data-key="n" class="key">n</div>
+                    <div data-key="backspace" class="key wide">suppr</div>
+                </div>
+            </div>
+        </main>
+        <footer>
+            <ul>
+                <li><a href="https://github.com/b3orn/motle">github</a></li>
+            </ul>
+        </footer>
+        <div id="help">
+            <div id="help-modal">
+                <header>
+                    <h2>aide</h2>
+                    <a href="#" id="hide-help">fermer</a>
+                </header>
+                <p>ce jeux est basé sur <a href="https://www.powerlanguage.co.uk/wordle/">wordle</a>.</p>
+                <p>devinez le mot en six tentatives. les carrés verts sont les lettres bien placées, les carrés jaunes sont les lettres qui ne sont pas bien placées et les autres lettres ne sont pas dans le mot.</p>
+                <p>le mot du jour change tous les jours</p>
+            </div>
+        </div>
+        <div id="unknown-word">
+            <p>ce n'est pas un mot</p>
+        </div>
+    </body>
+</html>
