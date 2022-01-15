@@ -66,6 +66,14 @@ def api_history():
     )
 
 
+@app.get("/api/words")
+def api_words():
+    return Response(
+        "\n".join(load_words()),
+        mimetype="text/plain"
+    )
+
+
 @app.lib.cron()
 def cron_job(event):
     history = load_history()

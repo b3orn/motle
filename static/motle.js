@@ -13,6 +13,11 @@ var motle = (function() {
         this.guessHistory = [];
         this.closenessHistory = [];
         this.keyboard = {};
+        this.knownWords = [];
+
+        this.fetchKnownWords().then(function(words) {
+            this.knownWords = words;
+        }.bind(this));
 
         var visited = window.localStorage.getItem("visited");
 
@@ -182,11 +187,8 @@ var motle = (function() {
     };
 
     motle.isKnownWord = function(guess) {
-        return true;
-        var knownWords = [];
-
-        if (knownWords.indexOf(guess) !== -1) {
-            return;
+        if (this.knownWords.indexOf(guess) !== -1) {
+            return true;
         }
 
         document.getElementById("unknown-word").classList.add("visible");
@@ -204,6 +206,8 @@ var motle = (function() {
         setTimeout(function() {
             document.getElementById("unknown-word").classList.remove("visible");
         }, 3000);
+
+        return false;
     };
 
     motle.checkCloseness = function(guess) {
@@ -240,6 +244,16 @@ var motle = (function() {
 
     motle.fetchHistory = function() {
         return fetch("/api/history").then(function(r) {
+            return r.text();
+        }).then(function(text) {
+            return new Promise(function(resolve, reject) {
+                resolve(text.split("\n"));
+            });
+        });
+    };
+
+    motle.fetchKnownWords = function() {
+        return fetch("/api/words").then(function(r) {
             return r.text();
         }).then(function(text) {
             return new Promise(function(resolve, reject) {
