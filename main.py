@@ -1,6 +1,5 @@
 import functools
 import os
-import random
 
 from deta import Deta, App
 from flask import Flask, Response, render_template
@@ -38,22 +37,9 @@ def load_word_of_the_day():
     return word
 
 
-def random_word():
-    words = load_words()
-    return random.choice(words)
-
-
 @app.get("/")
 def index():
     return render_template("index.html", word_of_the_day=load_word_of_the_day())
-
-
-@app.get("/api/random")
-def api_random():
-    return Response(
-        random_word(),
-        mimetype="text/plain"
-    )
 
 
 @app.get("/api/history")

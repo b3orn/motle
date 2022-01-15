@@ -56,12 +56,19 @@ var motle = (function() {
         this.saveState();
 
         window.addEventListener("keyup", this.eventHandler.bind(this));
-        document.getElementById("show-help").addEventListener("click", this.showHelp.bind(this));
-        document.getElementById("hide-help").addEventListener("click", this.hideHelp.bind(this));
-        document.getElementById("help").addEventListener("click", this.hideHelp.bind(this));
-        document.getElementById("reset").addEventListener("click", this.resetState.bind(this));
-        document.getElementById("word-of-the-day").addEventListener("click", this.modeWordOfTheDay.bind(this));
-        document.getElementById("random").addEventListener("click", this.modeRandom.bind(this));
+
+        var buttons = {
+            "show-help": this.showHelp,
+            "hide-help": this.hideHelp,
+            "help": this.hideHelp,
+            "reset": this.resetState,
+            "random": this.modeRandom,
+            "word-of-the-day": this.modeWordOfTheDay
+        };
+
+        for (var key in buttons) {
+            document.getElementById(key).addEventListener("click", buttons[key].bind(this));
+        }
     };
 
     motle.eventHandler = function(e) {
@@ -137,11 +144,8 @@ var motle = (function() {
 
     motle.modeRandom = function(event) {
         event.target.blur();
-        this.fetchRandom().then(function(word) {
-            this.state.word = word;
-
-            this.reset();
-        }.bind(this));
+        this.reset();
+        this.state.word = this.knownWords[Math.floor(Math.random() * this.knownWords.length)];
     };
 
     motle.reset = function() {
@@ -355,12 +359,6 @@ var motle = (function() {
             return new Promise(function(resolve, reject) {
                 resolve(text.split("\n"));
             });
-        });
-    };
-
-    motle.fetchRandom = function() {
-        return fetch("/api/random").then(function(r) {
-            return r.text();
         });
     };
 
