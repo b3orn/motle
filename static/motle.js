@@ -2,36 +2,13 @@ var motle = (function() {
     var motle = {};
     
     motle.init = function(word) {
-        this.wordOfTheDay = word;
-        this.word = word;
-        this.ended = false;
         this.grid = document.getElementById("grid");
-        this.row = 0;
-        this.column = 0;
         this.letters = "abcdefghijklmnopqrstuvwxyz"
-        this.guess = [];
-        this.guessHistory = [];
-        this.closenessHistory = [];
         this.keyboard = {};
         this.knownWords = [];
-
         this.fetchKnownWords().then(function(words) {
             this.knownWords = words;
         }.bind(this));
-
-        var visited = window.localStorage.getItem("visited");
-
-        if (!visited) {
-            window.localStorage.setItem("visited", "true");
-            this.showHelp({target: document.getElementById("show-help")});
-        }
-
-        window.addEventListener("keyup", this.eventHandler.bind(this));
-        document.getElementById("show-help").addEventListener("click", this.showHelp.bind(this));
-        document.getElementById("hide-help").addEventListener("click", this.hideHelp.bind(this));
-        document.getElementById("help").addEventListener("click", this.hideHelp.bind(this));
-        document.getElementById("word-of-the-day").addEventListener("click", this.modeWordOfTheDay.bind(this));
-        document.getElementById("random").addEventListener("click", this.modeRandom.bind(this));
 
         var elements = document.querySelectorAll("#keyboard .key");
         for (var i = 0; i < elements.length; ++i) {
@@ -42,6 +19,46 @@ var motle = (function() {
                 this.keyboard[el.dataset.key] = el;
             }
         }
+
+        this.state = {
+            wordOfTheDay: word,
+            word: word,
+            ended: false,
+            won: 0,
+            lost: 0,
+            closenessHistory: [],
+            guessHistory: [],
+            row: 0,
+            column: 0,
+            guess: []
+        };
+
+        var state = window.localStorage.getItem("state");
+
+        if (!state) {
+            this.showHelp({target: document.getElementById("show-help")});
+        } else {
+            this.state = JSON.parse(state);
+            this.restoreState();
+
+            if (this.state.word === this.state.wordOfTheDay && this.state.wordOfTheDay !== word) {
+                this.state.wordOfTheDay = word;
+                this.state.word = word;
+                this.state.ended = false;
+            } else {
+                this.state.wordOfTheDay = word;
+            }
+        }
+
+        this.saveState();
+
+        window.addEventListener("keyup", this.eventHandler.bind(this));
+        document.getElementById("show-help").addEventListener("click", this.showHelp.bind(this));
+        document.getElementById("hide-help").addEventListener("click", this.hideHelp.bind(this));
+        document.getElementById("help").addEventListener("click", this.hideHelp.bind(this));
+        document.getElementById("reset").addEventListener("click", this.resetState.bind(this));
+        document.getElementById("word-of-the-day").addEventListener("click", this.modeWordOfTheDay.bind(this));
+        document.getElementById("random").addEventListener("click", this.modeRandom.bind(this));
     };
 
     motle.eventHandler = function(e) {
@@ -85,6 +102,24 @@ var motle = (function() {
         document.querySelector("footer").classList.remove("blurred");
     };
 
+    motle.resetState = function(event) {
+        event.target.blur();
+        this.state = {
+            wordOfTheDay: this.state.wordOfTheDay,
+            word: this.state.wordOfTheDay,
+            ended: false,
+            won: 0,
+            lost: 0,
+            closenessHistory: [],
+            guessHistory: [],
+            row: 0,
+            column: 0,
+            guess: []
+        };
+        this.saveState();
+        this.restoreState();
+    };
+
     motle.modeWordOfTheDay = function(event) {
         event.target.blur();
         this.reset();
@@ -102,12 +137,12 @@ var motle = (function() {
     };
 
     motle.reset = function() {
-        this.ended = false;
-        this.row = 0;
-        this.column = 0;
-        this.guess = [];
-        this.guessHistory = [];
-        this.closenessHistory = [];
+        this.state.ended = false;
+        this.state.row = 0;
+        this.state.column = 0;
+        this.state.guess = [];
+        this.state.guessHistory = [];
+        this.state.closenessHistory = [];
 
         for (var i = 0; i < this.grid.children.length; ++i) {
             var el = this.grid.children[i]
@@ -119,69 +154,83 @@ var motle = (function() {
         for (var k in this.keyboard) {
             this.keyboard[k].classList.remove("inactive", "correct", "close")
         }
+
+        this.saveState();
     };
 
     motle.removeLetter = function() {
-        if (this.ended) {
+        if (this.state.ended) {
             return;
         }
 
-        if (this.column > 0) {
-            this.guess.pop();
-            this.column--;
-            this.grid.children[5 * this.row + this.column].textContent = "";
+        if (this.state.column > 0) {
+            this.state.guess.pop();
+            this.state.column--;
+            this.grid.children[5 * this.state.row + this.state.column].textContent = "";
         }
+
+        this.saveState();
     };
 
     motle.addLetter = function(letter) {
-        if (this.ended) {
+        if (this.state.ended) {
             return;
         }
 
-        if (this.column < 5) {
-            this.guess.push(letter);
-            this.grid.children[5 * this.row + this.column].textContent = letter;
-            this.column++;
+        if (this.state.column < 5) {
+            this.state.guess.push(letter);
+            this.grid.children[5 * this.state.row + this.state.column].textContent = letter;
+            this.state.column++;
         }
+
+        this.saveState();
     };
 
     motle.submitGuess = function() {
-        if (this.ended) {
+        if (this.state.ended) {
             return;
         }
 
-        if (this.row <= 5 && this.column == 5) {
-            if (this.checkWord(this.guess.join(""))) {
-                this.row++;
-                this.column = 0;
-                this.guess = [];
+        if (this.state.row <= 5 && this.state.column == 5) {
+            if (this.checkWord(this.state.guess.join(""))) {
+                this.state.row++;
+                this.state.column = 0;
+                this.state.guess = [];
             }
         }
+
+        this.saveState();
     };
 
     motle.checkWord = function(guess) {
-        if (this.row > 5 || !this.isKnownWord(guess)) {
+        if (this.state.row > 5 || !this.isKnownWord(guess)) {
             return false;
         }
 
         var closeness = this.checkCloseness(guess);
 
-        if (guess === this.word || this.row == 5) {
-            this.ended = true;
+        if (guess === this.state.word) {
+            this.state.ended = true;
+            this.state.won++;
+        } else if (this.state.row == 5) {
+            this.state.ended = true;
+            this.state.lost--;
         }
 
-        this.guessHistory.push(guess);
-        this.closenessHistory.push(closeness);
+        this.state.guessHistory.push(guess);
+        this.state.closenessHistory.push(closeness);
 
         for (var i = 0; i < 5; ++i) {
-            this.grid.children[5 * this.row + i].classList.add("active");
+            this.grid.children[5 * this.state.row + i].classList.add("active");
 
             if (closeness[i] == i) {
-                this.grid.children[5 * this.row + i].classList.add("correct");
+                this.grid.children[5 * this.state.row + i].classList.add("correct");
             } else if (closeness[i] !== -1) {
-                this.grid.children[5 * this.row + i].classList.add("close");
+                this.grid.children[5 * this.state.row + i].classList.add("close");
             }
         }
+
+        this.saveState();
 
         return true;
     };
@@ -194,12 +243,12 @@ var motle = (function() {
         document.getElementById("unknown-word").classList.add("visible");
 
         for (var i = 0; i < 5; ++i) {
-            this.grid.children[5 * this.row + i].classList.add("shake");
+            this.grid.children[5 * this.state.row + i].classList.add("shake");
         }
 
         setTimeout(function() {
             for (var i = 0; i < 5; ++i) {
-                this.grid.children[5 * this.row + i].classList.remove("shake");
+                this.grid.children[5 * this.state.row + i].classList.remove("shake");
             }
         }.bind(this), 1000);
 
@@ -212,7 +261,7 @@ var motle = (function() {
 
     motle.checkCloseness = function(guess) {
         var res = [-1, -1, -1, -1, -1],
-            word = this.word;
+            word = this.state.word;
 
         for (var i = 0; i < 5; ++i) {
             if (word[i] === guess[i]) {
@@ -240,6 +289,45 @@ var motle = (function() {
         }
 
         return res;
+    };
+
+    motle.saveState = function() {
+        window.localStorage.setItem("state", JSON.stringify(this.state));
+    };
+
+    motle.restoreState = function() {
+        for (var j = 0; j < 6; ++j) {
+            for (var i = 0; i < 5; ++i) {
+                this.grid.children[5 * j + i].textContent = ""
+                this.grid.children[5 * j + i].classList.remove("active", "correct", "close");
+            }
+        }
+
+        for (var k in this.keyboard) {
+            this.keyboard[k].classList.remove("inactive", "correct", "close");
+        }
+
+        for (var j = 0; j < this.state.row; ++j) {
+            for (var i = 0; i < 5; ++i) {
+                this.grid.children[5 * j + i].textContent = this.state.guessHistory[j][i];
+
+                this.grid.children[5 * j + i].classList.add("active");
+
+                if (this.state.closenessHistory[j][i] === i) {
+                    this.grid.children[5 * j + i].classList.add("correct");
+                    this.keyboard[this.state.guessHistory[j][i]].classList.add("correct");
+                } else if (this.state.closenessHistory[j][i] !== -1) {
+                    this.grid.children[5 * j + i].classList.add("close");
+                    this.keyboard[this.state.guessHistory[j][i]].classList.add("close");
+                } else {
+                    this.keyboard[this.state.guessHistory[j][i]].classList.add("inactive");
+                }
+            }
+        }
+
+        for (var i = 0; i < this.state.column; ++i) {
+            this.grid.children[5 * this.state.row + i].textContent = this.state.guess[i];
+        }
     };
 
     motle.fetchHistory = function() {
