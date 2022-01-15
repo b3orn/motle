@@ -264,7 +264,8 @@ main.blurred {
     background-color: var(--cell-close-background-color);
 }
 
-#help {
+#help,
+#stats {
     display: none;
     position: absolute;
     top: 0px;
@@ -273,38 +274,45 @@ main.blurred {
     height: 100%;
 }
 
-#help.visible {
+#help.visible,
+#stats.visible {
     display: flex;
     flex-flow: row nowrap;
     align-items: center;
 }
 
-#help-modal {
+#help-modal,
+#stats-modal {
     margin: 0 auto;
     width: var(--nav-width);
     background-color: var(--main-background-color);
 }
 
-#help-modal header {
+#help-modal header,
+#stats-modal header {
     display: flex;
     flex-flow: row nowrap;
     justify-content: space-between;
     padding: 1rem;
 }
 
-#help-modal header h2 {
+#help-modal header h2,
+#stats-modal header h2 {
     font-size: 2rem;
 }
 
-#help-modal header a {
+#help-modal header a,
+#stats-modal header a {
     display: block;
 }
 
-#help-modal a {
+#help-modal a,
+#stats-modal a {
     color: var(--main-color);
 }
 
-#help-modal p {
+#help-modal p,
+#stats-modal p {
     padding: 1rem;
 }
 

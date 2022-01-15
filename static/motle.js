@@ -122,15 +122,20 @@ var motle = (function() {
 
     motle.modeWordOfTheDay = function(event) {
         event.target.blur();
+
+        if (this.state.word === this.state.wordOfTheDay) {
+            return;
+        }
+
         this.reset();
 
-        this.word = this.wordOfTheDay;
+        this.state.word = this.state.wordOfTheDay;
     };
 
     motle.modeRandom = function(event) {
         event.target.blur();
         this.fetchRandom().then(function(word) {
-            this.word = word;
+            this.state.word = word;
 
             this.reset();
         }.bind(this));
