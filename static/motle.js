@@ -42,6 +42,9 @@ var motle = (function() {
             this.restoreState();
 
             if (this.state.word === this.state.wordOfTheDay && this.state.wordOfTheDay !== word) {
+                this.state.guess = [];
+                this.state.guessHistory = [];
+                this.state.closenessHistory = [];
                 this.state.wordOfTheDay = word;
                 this.state.word = word;
                 this.state.ended = false;
