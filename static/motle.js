@@ -12,7 +12,14 @@ var motle = (function() {
         this.guess = [];
         this.guessHistory = [];
         this.closenessHistory = [];
-        this.keyboard = {}
+        this.keyboard = {};
+
+        var visited = window.localStorage.getItem("visited");
+
+        if (!visited) {
+            window.localStorage.setItem("visited", "true");
+            this.showHelp({target: document.getElementById("show-help")});
+        }
 
         window.addEventListener("keyup", this.eventHandler.bind(this));
         document.getElementById("show-help").addEventListener("click", this.showHelp.bind(this));
