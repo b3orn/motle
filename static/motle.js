@@ -6,20 +6,6 @@ var motle = (function() {
         this.letters = "abcdefghijklmnopqrstuvwxyz"
         this.keyboard = {};
         this.knownWords = [];
-        this.fetchKnownWords().then(function(words) {
-            this.knownWords = words;
-        }.bind(this));
-
-        var elements = document.querySelectorAll("#keyboard .key");
-        for (var i = 0; i < elements.length; ++i) {
-            var el = elements[i];
-            el.addEventListener("click", this.virtualKeyboardEventHandler.bind(this))
-
-            if (el.dataset.key.length == 1) {
-                this.keyboard[el.dataset.key] = el;
-            }
-        }
-
         this.state = {
             wordOfTheDay: word,
             word: word,
@@ -33,28 +19,51 @@ var motle = (function() {
             guess: []
         };
 
+        this.initKnownWords();
+        this.initKeyboard();
+        this.initEventHandlers();
+        this.initState();
+    };
+
+    motle.initState = function() {
         var state = window.localStorage.getItem("state");
 
         if (!state) {
             this.showHelp({target: document.getElementById("show-help")});
         } else {
             this.state = JSON.parse(state);
-            this.restoreState();
 
             if (this.state.word === this.state.wordOfTheDay && this.state.wordOfTheDay !== word) {
                 this.state.guess = [];
                 this.state.guessHistory = [];
                 this.state.closenessHistory = [];
+                this.state.row = 0;
+                this.state.column = 0;
                 this.state.wordOfTheDay = word;
                 this.state.word = word;
                 this.state.ended = false;
             } else {
                 this.state.wordOfTheDay = word;
+                this.restoreState();
             }
         }
 
         this.saveState();
+    };
 
+    motle.initKeyboard = function() {
+        var elements = document.querySelectorAll("#keyboard .key");
+        for (var i = 0; i < elements.length; ++i) {
+            var el = elements[i];
+            el.addEventListener("click", this.virtualKeyboardEventHandler.bind(this))
+
+            if (el.dataset.key.length == 1) {
+                this.keyboard[el.dataset.key] = el;
+            }
+        }
+    };
+
+    motle.initEventHandlers = function() {
         window.addEventListener("keyup", this.eventHandler.bind(this));
 
         var buttons = {
@@ -69,6 +78,12 @@ var motle = (function() {
         for (var key in buttons) {
             document.getElementById(key).addEventListener("click", buttons[key].bind(this));
         }
+    };
+
+    motle.initKnownWords = function() {
+        this.fetchKnownWords().then(function(words) {
+            this.knownWords = words;
+        }.bind(this));
     };
 
     motle.eventHandler = function(e) {
@@ -140,12 +155,17 @@ var motle = (function() {
         this.reset();
 
         this.state.word = this.state.wordOfTheDay;
+
+        this.saveState();
     };
 
     motle.modeRandom = function(event) {
         event.target.blur();
         this.reset();
+
         this.state.word = this.knownWords[Math.floor(Math.random() * this.knownWords.length)];
+
+        this.saveState();
     };
 
     motle.reset = function() {
@@ -241,8 +261,6 @@ var motle = (function() {
                 this.grid.children[5 * this.state.row + i].classList.add("close");
             }
         }
-
-        this.saveState();
 
         return true;
     };
