@@ -160,7 +160,7 @@ var motle = (function() {
     };
 
     motle.showStats = function(event) {
-        var stats = this.state.stats[this.mode];
+        var stats = this.state.stats[this.state.mode];
 
         if (event) {
             event.target.blur();
