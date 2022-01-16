@@ -29,7 +29,7 @@ var motle = (function() {
         var state = window.localStorage.getItem("state");
 
         if (!state) {
-            this.showHelp({target: document.getElementById("show-help")});
+            this.showHelp();
         } else {
             this.state = JSON.parse(state);
 
@@ -44,6 +44,7 @@ var motle = (function() {
                 this.state.ended = false;
             } else {
                 this.state.wordOfTheDay = word;
+
                 this.restoreState();
             }
         }
@@ -70,6 +71,9 @@ var motle = (function() {
             "show-help": this.showHelp,
             "hide-help": this.hideHelp,
             "help": this.hideHelp,
+            "show-stats": this.showStats,
+            "hide-stats": this.hideStats,
+            "stats": this.hideStats,
             "reset": this.resetState,
             "random": this.modeRandom,
             "word-of-the-day": this.modeWordOfTheDay
@@ -108,7 +112,10 @@ var motle = (function() {
     };
 
     motle.showHelp = function(event) {
-        event.target.blur();
+        if (event) {
+            event.target.blur();
+        }
+
         document.querySelector("#help").classList.add("visible");
         document.querySelector("nav").classList.add("blurred");
         document.querySelector("main").classList.add("blurred");
@@ -116,12 +123,43 @@ var motle = (function() {
     };
 
     motle.hideHelp = function(event) {
-        if (event.target.id !== "help" && event.target.id !== "hide-help") {
+        if (event) {
+            event.target.blur();
+
+            if (event.target.id !== "help" && event.target.id !== "hide-help") {
+                return;
+            }
+        }
+
+        document.querySelector("#help").classList.remove("visible");
+        document.querySelector("nav").classList.remove("blurred");
+        document.querySelector("main").classList.remove("blurred");
+        document.querySelector("footer").classList.remove("blurred");
+    };
+
+    motle.showStats = function(event) {
+        if (event) {
+            event.target.blur();
+        }
+
+        this.hideHelp();
+
+        document.querySelector("#stats span").textContent = "" + this.state.won + "/" + (this.state.won + this.state.lost);
+
+        document.querySelector("#stats").classList.add("visible");
+        document.querySelector("nav").classList.add("blurred");
+        document.querySelector("main").classList.add("blurred");
+        document.querySelector("footer").classList.add("blurred");
+    };
+
+    motle.hideStats = function(event) {
+        event.target.blur();
+
+        if (event.target.id !== "stats" && event.target.id !== "hide-stats") {
             return;
         }
 
-        event.target.blur();
-        document.querySelector("#help").classList.remove("visible");
+        document.querySelector("#stats").classList.remove("visible");
         document.querySelector("nav").classList.remove("blurred");
         document.querySelector("main").classList.remove("blurred");
         document.querySelector("footer").classList.remove("blurred");
@@ -244,9 +282,11 @@ var motle = (function() {
         if (guess === this.state.word) {
             this.state.ended = true;
             this.state.won++;
+            this.showStats();
         } else if (this.state.row == 5) {
             this.state.ended = true;
-            this.state.lost--;
+            this.state.lost++;
+            this.showStats();
         }
 
         this.state.guessHistory.push(guess);

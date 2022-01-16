@@ -4,8 +4,8 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>motle</title>
-        <link rel="stylesheet" href="/motle.css">
         <link rel="icon" href="/favicon.ico">
+        <link rel="stylesheet" href="/motle.css">
         <script type="text/javascript" src="/motle.js"></script>
         <script type="text/javascript">
             window.onload = function() {
@@ -108,10 +108,20 @@
                 <p>ce jeux est basé sur <a href="https://www.powerlanguage.co.uk/wordle/">wordle</a>.</p>
                 <p>devinez le mot en six tentatives. les carrés verts sont les lettres bien placées, les carrés jaunes sont les lettres qui ne sont pas bien placées et les autres lettres ne sont pas dans le mot.</p>
                 <p>le mot du jour change tous les jours</p>
+                <p><a id="show-stats" href="#">afficher statistiques</a></p>
+                <p></p>
                 <p><a id="reset" href="#">réinitialiser</a></p>
             </div>
         </div>
-        <div id="stats"></div>
+        <div id="stats">
+            <div id="stats-modal">
+                <header>
+                    <h2>statistiques</h2>
+                    <a href="#" id="hide-stats">fermer</a>
+                </header>
+                <p>vous avez gagné <span></span> parties.</p>
+            </div>
+        </div>
         <div id="unknown-word">
             <p>ce n'est pas un mot</p>
         </div>
