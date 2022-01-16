@@ -22,10 +22,10 @@ var motle = (function() {
         this.initKnownWords();
         this.initKeyboard();
         this.initEventHandlers();
-        this.initState();
+        this.initState(word);
     };
 
-    motle.initState = function() {
+    motle.initState = function(word) {
         var state = window.localStorage.getItem("state");
 
         if (!state) {
