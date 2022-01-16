@@ -160,13 +160,15 @@ var motle = (function() {
     };
 
     motle.showStats = function(event) {
+        var stats = this.state.stats[this.mode];
+
         if (event) {
             event.target.blur();
         }
 
         this.hideHelp();
 
-        document.querySelector("#stats span").textContent = "" + this.state.won + "/" + (this.state.won + this.state.lost);
+        document.querySelector("#stats span").textContent = "" + stats.won + "/" + (stats.won + stats.lost);
 
         document.querySelector("#stats").classList.add("visible");
         document.querySelector("nav").classList.add("blurred");
