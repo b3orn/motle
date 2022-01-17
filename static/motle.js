@@ -31,7 +31,7 @@ var motle = (function() {
                 this.state.daily.row = 0;
                 this.state.daily.column = 0;
 
-                if (this.state.mode === "random") {
+                if (this.state.mode !== "random") {
                     this.state = Object.assign(this.state, this.state.daily);
                 }
             } else {
