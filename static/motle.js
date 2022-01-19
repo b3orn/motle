@@ -101,8 +101,25 @@ var motle = (function() {
     };
 
     motle.initKnownWords = function() {
+        var storage = window.localStorage.getItem("words");
+
+        if (storage) {
+            var parsed = JSON.parse(knownWords);
+
+            this.knownWords = parsed.words;
+
+            if (Date.now() - parsed.timestamp < 7 * 24 * 60 * 60 * 1000) {
+                return;
+            }
+        }
+
         this.fetchKnownWords().then(function(words) {
             this.knownWords = words;
+
+            window.localStorage.setItem("words", JSON.stringify({
+                words: words,
+                timestamp: Date.now()
+            }));
         }.bind(this));
     };
 
@@ -288,7 +305,7 @@ var motle = (function() {
         if (guess === state.word || state.row === 5) {
             state.ended = true;
 
-            if (guess === state.word && state.row !== 5) {
+            if (guess === state.word) {
                 state.won++;
             } else {
                 state.lost++;
