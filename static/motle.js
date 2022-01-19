@@ -23,20 +23,18 @@ var motle = (function() {
             this.state = JSON.parse(state);
 
             if (this.state.daily.word !== word) {
-                this.state.daily.word = word;
-                this.state.daily.ended = false;
-                this.state.daily.guess = [];
-                this.state.daily.guessHistory = [];
-                this.state.daily.closenessHistory = [];
-                this.state.daily.row = 0;
-                this.state.daily.column = 0;
-
-                if (this.state.mode !== "random") {
-                    this.state = Object.assign(this.state, this.state.daily);
-                }
-            } else {
-                this.restoreState();
+                state.daily = {
+                    word: word,
+                    ended: false,
+                    guess: [],
+                    guessHistory: [],
+                    closenessHistory: [],
+                    row: 0,
+                    column: 0
+                };
             }
+
+            this.restoreState();
         }
 
         this.saveState();
@@ -44,21 +42,7 @@ var motle = (function() {
 
     motle.newState = function(word) {
         return {
-            word: word,
-            ended: false,
             mode: "daily",
-            stats: {
-                random: {
-                    won: 0,
-                    lost: 0
-                },
-                daily: {
-                    won: 0,
-                    lost: 0
-                }
-            },
-            closenessHistory: [],
-            guessHistory: [],
             daily: {
                 word: word,
                 ended: false,
@@ -66,11 +50,21 @@ var motle = (function() {
                 column: 0,
                 guess: [],
                 guessHistory: [],
-                closenessHistory: []
+                closenessHistory: [],
+                won: 0,
+                lost: 0
             },
-            row: 0,
-            column: 0,
-            guess: []
+            random: {
+                word: undefined,
+                ended: false,
+                row: 0,
+                column: 0,
+                guess: [],
+                guessHistory: [],
+                closenessHistory: [],
+                won: 0,
+                lost: 0
+            }
         };
     };
 
@@ -98,7 +92,7 @@ var motle = (function() {
             "stats": this.hideStats,
             "reset": this.resetState,
             "random": this.modeRandom,
-            "word-of-the-day": this.modeWordOfTheDay
+            "word-of-the-day": this.modeDaily
         };
 
         for (var key in buttons) {
@@ -160,7 +154,7 @@ var motle = (function() {
     };
 
     motle.showStats = function(event) {
-        var stats = this.state.stats[this.state.mode];
+        var stats = this.state[this.state.mode];
 
         if (event) {
             event.target.blur();
@@ -198,100 +192,84 @@ var motle = (function() {
         this.restoreState();
     };
 
-    motle.modeWordOfTheDay = function(event) {
+    motle.modeDaily = function(event) {
         event.target.blur();
 
-        if (this.state.mode === "daily") {
-            return;
-        }
-
         this.state.mode = "daily";
-        this.state = Object.assign(this.state, this.state.daily);
 
         this.saveState();
-        this.resetGrid();
         this.restoreState();
     };
 
     motle.modeRandom = function(event) {
         event.target.blur();
 
-        if (this.state.mode === "daily") {
-            this.state.daily = Object.assign(this.state.daily, {
-                ended: this.state.ended,
-                row: this.state.row,
-                column: this.state.column,
-                guess: this.state.guess,
-                guessHistory: this.state.guessHistory,
-                closenessHistory: this.state.closenessHistory
+        if (this.state.mode === "random" || !this.state.random.word) {
+            if (!this.state.random.ended && this.state.random.word) {
+                this.state.random.lost++;
+            }
+
+            this.state.random = Object.assign(this.state.random, {
+                word: this.knownWords[Math.floor(Math.random() * this.knownWords.length)],
+                ended: false,
+                row: 0,
+                column: 0,
+                guess: [],
+                guessHistory: [],
+                closenessHistory: []
             });
-            this.state.mode = "random";
         }
 
-        this.state.ended = false;
-        this.state.row = 0;
-        this.state.column = 0;
-        this.state.guess = [];
-        this.state.guessHistory = [];
-        this.state.closenessHistory = [];
-        this.state.word = this.knownWords[Math.floor(Math.random() * this.knownWords.length)];
+        this.state.mode = "random";
 
         this.saveState();
-        this.resetGrid();
         this.restoreState();
     };
 
-    motle.resetGrid = function() {
-        for (var i = 0; i < this.grid.children.length; ++i) {
-            var el = this.grid.children[i]
-            
-            el.textContent = "";
-            el.classList.remove("active", "correct", "close");
-        }
-
-        for (var k in this.keyboard) {
-            this.keyboard[k].classList.remove("inactive", "correct", "close")
-        }
-    };
-
     motle.removeLetter = function() {
-        if (this.state.ended) {
+        var state = this.state[this.state.mode];
+
+        if (state.ended) {
             return;
         }
 
-        if (this.state.column > 0) {
-            this.state.guess.pop();
-            this.state.column--;
-            this.grid.children[5 * this.state.row + this.state.column].textContent = "";
+        if (state.column > 0) {
+            state.guess.pop();
+            state.column--;
+            this.grid.children[5 * state.row + state.column].textContent = "";
         }
 
         this.saveState();
     };
 
     motle.addLetter = function(letter) {
-        if (this.state.ended) {
+        var state = this.state[this.state.mode];
+
+        if (state.ended) {
             return;
         }
 
-        if (this.state.column < 5) {
-            this.state.guess.push(letter);
-            this.grid.children[5 * this.state.row + this.state.column].textContent = letter;
-            this.state.column++;
+        if (state.column < 5) {
+            state.guess.push(letter);
+            this.grid.children[5 * state.row + state.column].textContent = letter;
+            state.column++;
         }
 
         this.saveState();
     };
 
     motle.submitGuess = function() {
-        if (this.state.ended) {
+        var state = this.state[this.state.mode];
+
+        if (state.ended) {
             return;
         }
 
-        if (this.state.row <= 5 && this.state.column == 5) {
-            if (this.checkWord(this.state.guess.join(""))) {
-                this.state.row++;
-                this.state.column = 0;
-                this.state.guess = [];
+        if (state.row <= 5 && state.column == 5) {
+            if (this.checkWord(state.guess.join(""))) {
+                state.row++;
+                state.column = 0;
+                state.guess = [];
             }
         }
 
@@ -299,32 +277,36 @@ var motle = (function() {
     };
 
     motle.checkWord = function(guess) {
-        if (this.state.row > 5 || !this.isKnownWord(guess)) {
+        var state = this.state[this.state.mode];
+
+        if (state.row > 5 || !this.isKnownWord(guess)) {
             return false;
         }
 
         var closeness = this.checkCloseness(guess);
 
-        if (guess === this.state.word) {
-            this.state.ended = true;
-            this.state.stats[this.state.mode].won++;
-            this.showStats();
-        } else if (this.state.row == 5) {
-            this.state.ended = true;
-            this.state.stats[this.state.mode].lost++;
+        if (guess === state.word || state.row === 5) {
+            state.ended = true;
+
+            if (guess === state.word && state.row !== 5) {
+                state.won++;
+            } else {
+                state.lost++;
+            }
+
             this.showStats();
         }
 
-        this.state.guessHistory.push(guess);
-        this.state.closenessHistory.push(closeness);
+        state.guessHistory.push(guess);
+        state.closenessHistory.push(closeness);
 
         for (var i = 0; i < 5; ++i) {
-            this.grid.children[5 * this.state.row + i].classList.add("active");
+            this.grid.children[5 * state.row + i].classList.add("active");
 
             if (closeness[i] == i) {
-                this.grid.children[5 * this.state.row + i].classList.add("correct");
+                this.grid.children[5 * state.row + i].classList.add("correct");
             } else if (closeness[i] !== -1) {
-                this.grid.children[5 * this.state.row + i].classList.add("close");
+                this.grid.children[5 * state.row + i].classList.add("close");
             }
         }
 
@@ -332,6 +314,8 @@ var motle = (function() {
     };
 
     motle.isKnownWord = function(guess) {
+        var state = this.state[this.state.mode];
+
         if (this.knownWords.indexOf(guess) !== -1) {
             return true;
         }
@@ -339,12 +323,12 @@ var motle = (function() {
         document.getElementById("unknown-word").classList.add("visible");
 
         for (var i = 0; i < 5; ++i) {
-            this.grid.children[5 * this.state.row + i].classList.add("shake");
+            this.grid.children[5 * state.row + i].classList.add("shake");
         }
 
         setTimeout(function() {
             for (var i = 0; i < 5; ++i) {
-                this.grid.children[5 * this.state.row + i].classList.remove("shake");
+                this.grid.children[5 * state.row + i].classList.remove("shake");
             }
         }.bind(this), 1000);
 
@@ -357,7 +341,7 @@ var motle = (function() {
 
     motle.checkCloseness = function(guess) {
         var res = [-1, -1, -1, -1, -1],
-            word = this.state.word;
+            word = this.state[this.state.mode].word;
 
         for (var i = 0; i < 5; ++i) {
             if (word[i] === guess[i]) {
@@ -387,42 +371,48 @@ var motle = (function() {
         return res;
     };
 
+    motle.resetGrid = function() {
+        for (var i = 0; i < this.grid.children.length; ++i) {
+            var el = this.grid.children[i];
+            
+            el.textContent = "";
+            el.classList.remove("active", "correct", "close");
+        }
+
+        for (var k in this.keyboard) {
+            this.keyboard[k].classList.remove("inactive", "correct", "close")
+        }
+    };
+
     motle.saveState = function() {
         window.localStorage.setItem("state", JSON.stringify(this.state));
     };
 
     motle.restoreState = function() {
-        for (var j = 0; j < 6; ++j) {
-            for (var i = 0; i < 5; ++i) {
-                this.grid.children[5 * j + i].textContent = ""
-                this.grid.children[5 * j + i].classList.remove("active", "correct", "close");
-            }
-        }
+        var state = this.state[this.state.mode];
 
-        for (var k in this.keyboard) {
-            this.keyboard[k].classList.remove("inactive", "correct", "close");
-        }
+        this.resetGrid();
 
-        for (var j = 0; j < this.state.row; ++j) {
+        for (var j = 0; j < state.row; ++j) {
             for (var i = 0; i < 5; ++i) {
-                this.grid.children[5 * j + i].textContent = this.state.guessHistory[j][i];
+                this.grid.children[5 * j + i].textContent = state.guessHistory[j][i];
 
                 this.grid.children[5 * j + i].classList.add("active");
 
-                if (this.state.closenessHistory[j][i] === i) {
+                if (state.closenessHistory[j][i] === i) {
                     this.grid.children[5 * j + i].classList.add("correct");
-                    this.keyboard[this.state.guessHistory[j][i]].classList.add("correct");
-                } else if (this.state.closenessHistory[j][i] !== -1) {
+                    this.keyboard[state.guessHistory[j][i]].classList.add("correct");
+                } else if (state.closenessHistory[j][i] !== -1) {
                     this.grid.children[5 * j + i].classList.add("close");
-                    this.keyboard[this.state.guessHistory[j][i]].classList.add("close");
+                    this.keyboard[state.guessHistory[j][i]].classList.add("close");
                 } else {
-                    this.keyboard[this.state.guessHistory[j][i]].classList.add("inactive");
+                    this.keyboard[state.guessHistory[j][i]].classList.add("inactive");
                 }
             }
         }
 
-        for (var i = 0; i < this.state.column; ++i) {
-            this.grid.children[5 * this.state.row + i].textContent = this.state.guess[i];
+        for (var i = 0; i < state.column; ++i) {
+            this.grid.children[5 * state.row + i].textContent = state.guess[i];
         }
     };
 
