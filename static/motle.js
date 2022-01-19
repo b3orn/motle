@@ -34,6 +34,10 @@ var motle = (function() {
                 };
             }
 
+            if (this.state.mode === "random" && this.state.random.ended) {
+                this.modeRandom();
+            }
+
             this.restoreState();
         }
 
@@ -101,10 +105,10 @@ var motle = (function() {
     };
 
     motle.initKnownWords = function() {
-        var storage = window.localStorage.getItem("words");
+        var stored = window.localStorage.getItem("words");
 
-        if (storage) {
-            var parsed = JSON.parse(knownWords);
+        if (stored) {
+            var parsed = JSON.parse(stored);
 
             this.knownWords = parsed.words;
 
@@ -219,9 +223,11 @@ var motle = (function() {
     };
 
     motle.modeRandom = function(event) {
-        event.target.blur();
+        if (event) {
+            event.target.blur();
+        }
 
-        if (this.state.mode === "random" || !this.state.random.word) {
+        if (this.state.mode === "random" || this.state.random.ended || !this.state.random.word) {
             if (!this.state.random.ended && this.state.random.word) {
                 this.state.random.lost++;
             }
