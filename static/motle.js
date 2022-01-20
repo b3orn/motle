@@ -23,7 +23,7 @@ var motle = (function() {
             this.state = JSON.parse(state);
 
             if (this.state.daily.word !== word) {
-                state.daily = {
+                this.state.daily = {
                     word: word,
                     ended: false,
                     guess: [],
