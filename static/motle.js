@@ -23,7 +23,7 @@ var motle = (function() {
             this.state = JSON.parse(state);
 
             if (this.state.daily.word !== word) {
-                this.state.daily = {
+                this.state.daily = Object.assign(this.state.daily, {
                     word: word,
                     ended: false,
                     guess: [],
@@ -31,7 +31,7 @@ var motle = (function() {
                     closenessHistory: [],
                     row: 0,
                     column: 0
-                };
+                });
             }
 
             if (this.state.mode === "random" && this.state.random.ended) {
